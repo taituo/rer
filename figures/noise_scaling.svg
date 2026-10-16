@@ -1,0 +1,34 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1100" height="620" viewBox="0 0 1100 620" role="img" aria-labelledby="title desc">
+<title id="title">Internal-noise tolerance decreases approximately inversely with register bound</title>
+<desc id="desc">Logarithmic line chart of the Gaussian internal-noise standard deviation at 50 percent wrong final answers, sigma50, for three model variants. At register bounds 32, 128, 512, the values are Z plus external rounding 0.00214, 0.000522, 0.000137; in-network restoration R 0.000599, 0.000152, 0.0000321; and R with restoring AND gates 0.000742, 0.000180, 0.0000463.</desc>
+<rect width="1100" height="620" fill="#ffffff"/>
+<text x="118" y="36" font-size="25" font-weight="700" fill="#1f2937" font-family="Arial, sans-serif">Noise tolerance falls with register range</text>
+<text x="118" y="60" font-size="16" fill="#576574" font-family="Arial, sans-serif">Experimental internal-noise threshold σ₅₀ vs. register bound B · logarithmic y-axis</text>
+<g font-family="Arial, sans-serif"><line x1="118" y1="448.0" x2="754" y2="448.0" stroke="#e7edf2" stroke-width="1"/><text x="105" y="453.0" font-size="16" fill="#566473" text-anchor="end">10⁻⁵</text>
+<line x1="118" y1="379.9" x2="754" y2="379.9" stroke="#e7edf2" stroke-width="1"/><text x="105" y="384.9" font-size="16" fill="#566473" text-anchor="end">3×10⁻⁵</text>
+<line x1="118" y1="305.3" x2="754" y2="305.3" stroke="#e7edf2" stroke-width="1"/><text x="105" y="310.3" font-size="16" fill="#566473" text-anchor="end">10⁻⁴</text>
+<line x1="118" y1="237.2" x2="754" y2="237.2" stroke="#e7edf2" stroke-width="1"/><text x="105" y="242.2" font-size="16" fill="#566473" text-anchor="end">3×10⁻⁴</text>
+<line x1="118" y1="162.6" x2="754" y2="162.6" stroke="#e7edf2" stroke-width="1"/><text x="105" y="167.6" font-size="16" fill="#566473" text-anchor="end">10⁻³</text>
+<line x1="118" y1="94.5" x2="754" y2="94.5" stroke="#e7edf2" stroke-width="1"/><text x="105" y="99.5" font-size="16" fill="#566473" text-anchor="end">3×10⁻³</text>
+<line x1="190" y1="77" x2="190" y2="448" stroke="#f1f4f6" stroke-width="1"/><text x="190" y="478" font-size="18" text-anchor="middle" fill="#2e3c4a">32</text>
+<line x1="450" y1="77" x2="450" y2="448" stroke="#f1f4f6" stroke-width="1"/><text x="450" y="478" font-size="18" text-anchor="middle" fill="#2e3c4a">128</text>
+<line x1="710" y1="77" x2="710" y2="448" stroke="#f1f4f6" stroke-width="1"/><text x="710" y="478" font-size="18" text-anchor="middle" fill="#2e3c4a">512</text>
+<line x1="118" y1="77" x2="118" y2="448" stroke="#546475" stroke-width="1.8"/>
+<line x1="118" y1="448" x2="754" y2="448" stroke="#546475" stroke-width="1.8"/>
+<polyline points="190,115.5 450,202.9 710,285.8" fill="none" stroke="#2276a5" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/><circle cx="190" cy="115.5" r="7" fill="#2276a5" stroke="#fff" stroke-width="2"/>
+<circle cx="450" cy="202.9" r="7" fill="#2276a5" stroke="#fff" stroke-width="2"/>
+<circle cx="710" cy="285.8" r="7" fill="#2276a5" stroke="#fff" stroke-width="2"/>
+<polyline points="190,194.4 450,279.4 710,375.7" fill="none" stroke="#c35e38" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/><circle cx="190" cy="194.4" r="7" fill="#c35e38" stroke="#fff" stroke-width="2"/>
+<circle cx="450" cy="279.4" r="7" fill="#c35e38" stroke="#fff" stroke-width="2"/>
+<circle cx="710" cy="375.7" r="7" fill="#c35e38" stroke="#fff" stroke-width="2"/>
+<polyline points="190,181.1 450,268.9 710,353.0" fill="none" stroke="#357c62" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/><circle cx="190" cy="181.1" r="7" fill="#357c62" stroke="#fff" stroke-width="2"/>
+<circle cx="450" cy="268.9" r="7" fill="#357c62" stroke="#fff" stroke-width="2"/>
+<circle cx="710" cy="353.0" r="7" fill="#357c62" stroke="#fff" stroke-width="2"/>
+<text x="436" y="516" font-size="17" font-weight="600" fill="#334155" text-anchor="middle">Register bound B (tested values)</text>
+<text x="24" y="275" font-size="18" font-weight="600" fill="#334155" text-anchor="middle" transform="rotate(-90 24 275)">σ₅₀ (Gaussian noise SD)</text>
+<line x1="786" x2="833" y1="145" y2="145" stroke="#2276a5" stroke-width="4"/><circle cx="808" cy="145" r="6" fill="#2276a5"/><text x="846" y="141" font-size="19" font-weight="700" fill="#26323e">Z+round</text><text x="846" y="167" font-size="15" fill="#566473">slope −0.99</text>
+<line x1="786" x2="833" y1="231" y2="231" stroke="#c35e38" stroke-width="4"/><circle cx="808" cy="231" r="6" fill="#c35e38"/><text x="846" y="227" font-size="19" font-weight="700" fill="#26323e">R</text><text x="846" y="253" font-size="15" fill="#566473">slope −1.06</text>
+<line x1="786" x2="833" y1="317" y2="317" stroke="#357c62" stroke-width="4"/><circle cx="808" cy="317" r="6" fill="#357c62"/><text x="846" y="313" font-size="19" font-weight="700" fill="#26323e">R_and</text><text x="846" y="339" font-size="15" fill="#566473">slope −1.00</text>
+<text x="120" y="566" font-size="14" fill="#576574">σ₅₀: noise level at which 50% of final answers were wrong; log-interpolated from a coarse sweep.</text>
+<text x="120" y="587" font-size="14" fill="#576574">n = 300 GCD input pairs per condition; 3 range values; no confidence intervals reported. Z+round uses ideal external rounding.</text></g>
+</svg>
