@@ -69,6 +69,26 @@ The apparently mixed story matters: restoring logic gates prevented the measured
 
 *Figure 1. Reported 50%-wrong-answer internal-noise thresholds versus register bound B. Values are interpolated from tested noise levels; lines are visual guides, not additional observations. See [methods, results and limitations](paper.md#results).*
 
+## A second experiment: can a trainable network use a frozen CPU?
+
+After the initial noise investigation, the researcher was **explicitly asked a new technical question**: can a learned neural interface use an exact, frozen ReLU program? This follow-up was **not part of the original blinded RER sequence**.
+
+A trainable linear encoder had to recover the integer inputs `(a, b)` for the CPU's `MULTIPLY` program from a random mixture of those inputs, using product labels and different training strategies.
+
+| Method | Successful training seeds | Accurate extrapolation far beyond training |
+|---|---:|---|
+| Backpropagation through restoring-margin CPU | 0/5 | No |
+| Backpropagation through zero-margin CPU | 0/5 | No |
+| Black-box neighboring-integer differences | 2/5 | 0% in tested far cases |
+| Differences plus integer-pulling loss | 3/5 | 0% in tested far cases |
+| **Longer integer-pulling training** (exploratory) | 2/5 nearly exact interfaces | **100% in those 2 seeds** |
+| **Direct supervision of the input interface** | **5/5** | **100% in all 5 seeds** |
+| Ordinary MLP without compiled module | Weak train-range fit | 0% in tested far cases |
+
+**Key finding (limited to this toy task):** learning to obtain a correct rounded answer in the training range is not the same as learning a sufficiently precise *interface*. Small learned coefficient errors grow at larger inputs. The CPU can be exact while the surrounding system fails. The gate's robust margins also suppress useful gradients through the control input. **These observations do not establish anything about actual language-model hidden states.**
+
+The complete arm descriptions, contradicting predictions, limitations and relevant prior work are in [the paper's hybrid experiment section](paper.md#72-exploratory-follow-up-can-a-trained-network-learn-to-use-a-frozen-exact-cpu).
+
 ## What this demonstrates—and what it does not
 
 **Observed in this case:** the model went from guided questions to a working artifact, a self-selected research problem, preregistered predictions, disconfirming results, an architectural modification and new unresolved questions.
@@ -82,13 +102,13 @@ The experiment was conducted by one primary research model. The two observer rol
 1. **Budget-matched cold-start control:** same researcher, tools, turn count, and compute budget, but general “continue researching” prompts rather than RER questions.
 2. **False-destination control:** reconstruct a plausible path toward a mathematically impossible target and measure whether the researcher detects the contradiction or produces a misleading success claim.
 3. **Multiple starting solutions:** generate paths from open-source algorithms and legally analyzable compiled programs; study how reconstruction quality changes downstream research.
-4. **Technical follow-up, separate from RER validation:** frozen exact computation inside a trainable network, and bit-encoded alternatives to large-gain scalar registers.
+4. **Technical follow-up, separate from RER validation:** compare surrogate gradients, explicit interface supervision and discrete argument encodings; test bit-encoded alternatives to large-gain scalar registers. The initial toy hybrid-CPU experiment is already reported above.
 
 The full proposal, dataset provenance, detailed tables, threat analysis, references and suggested replication protocol appear in **[paper.md](paper.md)**.
 
 ## Reproducibility status
 
-This repository initially publishes the **research description and transcribed measurements**. The results were taken from the primary research model's dated `research_log.md`. Raw experiment JSON files and executable source have **not yet been deposited here**, so the results should be treated as **research-agent-reported evidence awaiting independent verification**. The original 214-line preregistration is reported in that log as hash-protected; a historical timestamped snapshot has not independently been audited.
+This repository currently publishes the **research description and transcribed measurements**, including a subsequent guided hybrid-network experiment. The results were taken from the primary research model's dated `research_log.md`. Raw experiment JSON files and executable source have **not yet been deposited here**, so the results should be treated as **research-agent-reported evidence awaiting independent verification**. The original 214-line preregistration is reported in that log as hash-protected; a historical timestamped snapshot has not independently been audited.
 
 ## Citation
 
@@ -98,8 +118,15 @@ If referring to this work, cite the project as an **unreviewed working paper**, 
 
 ## Related work
 
-This project builds on the distinction between known-solution reconstruction and open-ended search. Relevant precedents include [Handwired](https://github.com/chenglou/handwired), [Tracr](https://arxiv.org/abs/2301.05062), [Tree of Thoughts](https://arxiv.org/abs/2305.10601), [von Neumann's reliable computation](https://www.jstor.org/stable/j.ctt1bgzb3s.5), and [Maass & Orponen on analog noise](https://doi.org/10.1162/089976698300017359). A full discussion and bibliographic entries are in the paper.
+This project builds on the distinction between known-solution reconstruction and open-ended search. Relevant precedents include [Handwired](https://github.com/chenglou/handwired), [Tracr](https://arxiv.org/abs/2301.05062), [Tree of Thoughts](https://arxiv.org/abs/2305.10601), [von Neumann's reliable computation](https://www.jstor.org/stable/j.ctt1bgzb3s.5), [Maass & Orponen on analog noise](https://doi.org/10.1162/089976698300017359), [Neural Arithmetic Logic Units](https://arxiv.org/abs/1808.00508), [TerpreT](https://openreview.net/forum?id=Sk6W5JJke), [differentiable Forth (∂4)](https://arxiv.org/abs/1605.06640), [straight-through estimators](https://arxiv.org/abs/1308.3432), and [Toolformer](https://arxiv.org/abs/2302.04761). A full discussion and bibliographic entries are in the paper.
 
 ---
 
 **Central hypothesis:** a reconstructed *sequence of questions* may provide a different—and potentially useful—research prior from a direct description of the task. Whether that improves research quality is an empirical question, not an established result.
+
+## Inspired by
+
+- **[Cheng Lou's Handwired](https://github.com/chenglou/handwired)** — the known technical result that inspired the **first RER reconstruction target**. The present experiments used a separately developed ReLU CPU; they do not evaluate the original Handwired implementation.
+- **[Felix Rieseberg, *How to be more ambitious: A tutorial for humans with models* (13 October 2026)](https://felixrieseberg.com/how-to-be-more-ambitious-a-tutorial-for-humans-with-models/)** — a broader inspiration for working at a higher level of abstraction, going deeper into primary materials, and requiring independent evidence for ambitious model work.
+
+These inspirations are acknowledged without implying endorsement or co-authorship.
