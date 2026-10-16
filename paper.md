@@ -16,6 +16,8 @@
 
 **Results.** In the researcher's own log, the original zero-margin CPU failed a full-state decoding test on 300/300 GCD trajectories after a one-time 10⁻¹² state perturbation (median first mismatch: 15 steps). Two-ReLU restoring AND gates removed those mismatches in specified one-time-noise tests (0/300), with similarly favorable findings for multiplication (325 cases) and Fibonacci (16 cases). Nonetheless, under *internal* Gaussian activation noise, substantial error rates remained, and the estimated 50%-wrong-answer threshold scaled approximately inversely with register bound. Several preregistered predictions were contradicted or materially revised.
 
+**Follow-up.** In a subsequent, explicitly directed hybrid-network experiment, Opus 5.5 evaluated whether a learned linear encoder could use a frozen exact CPU. Direct supervision of its input interface succeeded in 5/5 random seeds on far-out-of-range tests, whereas unsupervised product-label methods exhibited substantial interface and extrapolation failures. This was a separate exploratory experiment, not another blind RER test.
+
 **Interpretation.** This case documents **research branching and hypothesis revision** after a reconstructed question path. It does **not** yet show that RER outperforms an equally resourced open-ended research agent, that the finding is scientifically novel, or that training-data exposure to the source idea was absent. We present a controlled evaluation protocol to test those questions.
 
 **Keywords:** autonomous research; curriculum design; reverse discovery; scientific methodology; code-to-neural compilation; numerical robustness; falsification; AI evaluation.
@@ -309,6 +311,56 @@ Nor does the technical branch prove scientific novelty. The key ideas of noise m
 - **Multiple dependent measures.** Full-state mismatch, wrong final answer, noise hazard, tangent growth and estimated σ50 answer different questions. They must not be pooled into a single “success” score.
 - **Small samples at failure boundaries.** 0/300 events suggests an approximate 95% upper binomial risk bound of 1% only under suitable independence assumptions; it does not imply zero true risk.
 
+### 7.2 Exploratory follow-up: can a trained network learn to use a frozen exact CPU?
+
+**This is a separately prompted continuation, not part of the original blinded RER path or a preregistered comparison of RER to an alternative method.** After the noise study, the researcher was asked to investigate the combination of frozen exact weights and trainable weights. The researcher designed and reported a six-arm experiment, writing its hypotheses and predictions before the runs according to its log. The reported primary continuation comprises **five random seeds per training method** and **383 passing code tests** by the end of this phase. The additional code and numerical JSON are not yet available in this publication for independent verification.
+
+**Question.** If a ReLU CPU performs multiplication exactly on integers, can a trainable encoder learn the CPU's input arguments from examples of correct products only? A learned **linear encoder** received a random linear mixture of operands `(a,b)`, where `a` is the data value and `b` determines the loop count in the fixed CPU's repeated-addition multiplication program. The researcher compared optimization through the module with black-box finite differences, direct interface supervision, and a module-free multilayer perceptron. Evaluation included values well beyond the training range, reportedly as large as `a=500` and `b=100`.
+
+```mermaid
+flowchart LR
+    X["Observed mixed operands"] --> E["Trainable linear encoder"]
+    E --> A["Estimated integer arguments"]
+    A --> C["Frozen ReLU CPU: MULTIPLY"]
+    C --> O["Computed product"]
+    Y["Target products / optional input labels"] -. "Training losses" .-> E
+```
+
+**Table 5.** Main outcomes reported for the hybrid experiment. “Train successes” counts runs that met the researcher's success criterion, not all runs with partially useful predictions. “Far OOD” describes accuracy substantially beyond the training range.
+
+| Training arm | Training outcome (five seeds) | Far-out-of-range behavior | Interpretation |
+|---|---|---|---|
+| **BP-Z_and**: backpropagation through margin-restoring CPU | **0/5 succeeded** | Not established as successful | Loop-count gradient zero; the corresponding encoder coefficients did not learn |
+| **BP-Z**: backpropagation through zero-margin CPU | **0/5 succeeded** | Not established as successful | Large, constant-sign control derivative did not yield convergence |
+| **FD**: black-box finite differences on neighboring integer arguments | **2/5 succeeded** | **0% correct** in far-range checks for the reported successful training seeds | Black-box objective could fit training products without learning a precise interface |
+| **FD+snap**: finite differences plus a pull-toward-integers loss | **3/5 succeeded** | **0% correct** for the reported far-range checks | Rounding encouragement improved training fits, not robust extrapolation |
+| **Extended self-rounding**: longer schedule (exploratory) | **2/5 reached nearly exact interfaces** | Those two seeds reached **100%** far accuracy | Strong extrapolation was possible but not reliable |
+| **IF-sup**: supervise the true module input arguments | **5/5 succeeded** | **100%** correct far away | A sufficiently accurate input interface transferred the CPU's exact calculation |
+| **MLP**: ordinary network, no compiled module | Did not achieve strong train performance (reported ≈53%) | **0%** far accuracy | A reference baseline, but not a successful train-range comparator |
+
+The extended schedule is an **additional exploratory condition**, not one of the initial six distinct methods; furthermore, extending training and altering the loss schedule were confounded in the reported continuation. The two successful extended runs do not imply the technique reliably solves the problem. Correct final answers and exact learned argument recovery are different metrics.
+
+**Gradient observations.** The multiplication program separates two roles. Its data operand `a` has a useful local derivative `∂(a·b)/∂a = b` at intended positive-integer operating points. In contrast, `b` is a **control-flow input** determining how often the CPU loops. The researcher reports **zero** gradient in the restoring-margin implementation for `b`; the zero-margin implementation instead produced a large **constant-magnitude, sign-valued gradient (±240,000 in this setting)**. Neither trained the control-input mapping in five seeds. Boundary kinks, including a `ReLU'(0)=0` convention, limit sweeping “everywhere” claims; these are local, implementation-specific autodifferentiation observations rather than a general theorem about all fixed-program modules.
+
+**Interface precision and extrapolation.** Some trained encoders reached correct answers after integer rounding while retaining continuous coefficient errors of order **0.5** on training inputs. A linear encoder's residual can scale approximately with input magnitude, so at far larger inputs the residual can cross the rounding boundary and produce wrong arguments. In the report, far-range encoder error grew to roughly **11–32** in representative runs, despite training-set products being correct. With direct input supervision, learned interfaces approached numerical precision and all five seeds extrapolated correctly. This indicates a useful **system-level limitation**: a perfectly correct component does not guarantee a correct composite system when its learned interface is only approximately correct.
+
+**Contradictory predictions.** The researcher expected the very large sign-correct BP-Z gradient to be sufficient for at least some successful training; **0/5** trials met that expectation. It predicted at least four successes for FD and FD+snap but observed **2/5** and **3/5**, respectively. It predicted at least four successful long-schedule snap runs and observed **2/5**. It also initially expected nonsense from non-integer loop counters in Z, whereas its limited direct tests suggested a consistent **floor-like rule**, `a·floor(b+δ)`, rather than arbitrary corruption. The log's brief summary also used conflicting rounding-up wording; the **mechanism remains incompletely explained**, so this paper reports the narrower empirical observation without adopting a proven global floor-function claim.
+
+**Limits of interpretation.** The design comprises **one synthetic multiplication program, a linear encoder, five seeds and a selected out-of-distribution range**. It is not an experiment on an actual language model, general tool use, or Handwired's source implementation. The data do **not** show that gradient-based training through frozen modules is generally impossible. They show that **control-input gradient and learned-argument precision were bottlenecks in this specific setup**; a direct supervised interface succeeded. The report contains several hypotheses contradicted by evidence and at least one unresolved optimization plateau. These negative results are part of the finding.
+
+### 7.3 Relation to prior research and novelty boundaries
+
+This case is best positioned relative to **established mechanisms**, rather than presented as a first discovery of symbolic neural computation or training around discrete decisions:
+
+- **Neural Arithmetic Logic Units (NALU)** [9] explicitly aim at arithmetic generalization outside the training range. They are an important comparator to a fixed exact arithmetic module and an ordinary MLP, although the architectures and objectives differ.
+- **TerpreT** [10] investigates program induction and differentiable-interpreter formulations, including gradient-based and discrete search back ends. It makes clear that hard program/control decisions and optimizer choice were studied well before this case.
+- **Differentiable Forth / ∂4** [11] integrates trainable program components into differentiable execution. It is highly relevant to hybrid fixed/trainable computation, but not an evaluation of this particular ReLU CPU.
+- **Straight-through gradient estimators** [12] are an established technique for replacing the unusable derivative of discrete operations with a surrogate. **No dedicated straight-through-versus-soft-ramp controlled arm is documented in the available hybrid result**. Their potential utility here is a follow-up hypothesis, not a finding.
+- **Toolformer** [13] learns *when and how* to issue tool calls, including argument strings, rather than differentiating through a tool's internal calculation. It is a meaningful conceptual comparison to supervised module interfaces, **not evidence that the present toy CPU experiment predicts real language-model behavior**.
+
+The specific numerical behavior of this particular fixed-ReLU architecture may warrant further comparison with prior implementations, but the evidence currently supports only **architecture- and task-specific observations**. Systematic literature review and independent reproduction are prerequisites to any claim of novelty.
+
+
 ## 8. A controlled research program
 
 We propose a prospective evaluation designed specifically to measure RER rather than impressiveness of an individual autonomous agent.
@@ -351,7 +403,7 @@ Optimization and equivalence testing may become meaningful *after* an alternativ
 
 RER is a procedure for **converting a known solution into an ordered, partially information-separated research curriculum**. The first case yielded a concrete technical branch: a compiled ReLU CPU, measured fragility in its zero-margin transition logic, experiments with restoring gates, contradictory predictions, and an unresolved internal-noise/range trade-off.
 
-These observations justify **investigating** RER, not declaring it superior or novel. The next decisive work is not another elaborate case story; it is a budget-matched, multi-run, blindly assessed control study. The impossible-destination experiment provides an especially important safeguard against mistaking an elegant question path for evidence of truth.
+These observations justify **investigating** RER, not declaring it superior or novel. The subsequent directed hybrid experiment adds a concrete negative/positive comparison on training interfaces, without proving end-to-end learnability for real language models. The next decisive work is not another elaborate case story; it is a budget-matched, multi-run, blindly assessed control study. The impossible-destination experiment provides an especially important safeguard against mistaking an elegant question path for evidence of truth.
 
 The long-term ambition is an automated system that converts existing implementations into research opportunities without prescribing which outcome should be discovered. Its value must be determined empirically by valid results and informative failures.
 
@@ -370,7 +422,7 @@ The human project owner is identified by the GitHub account name **taituo**; no 
 **Competing interests:** none disclosed in the supplied materials.  
 **Funding:** not specified.  
 **Ethics / disclosure:** this is an AI-agent methods case study; no human subjects or personal data are analyzed in the reported technical experiments.  
-**Code/data availability:** project description, figure and working paper are public in this repository. The underlying experiment source and JSON logs are **not part of this release**. The recorded summary should be treated as a research-agent self-report until these are archived and rerun.
+**Code/data availability:** project description, figure and working paper are public in this repository. The underlying experiment source and JSON logs, including the later hybrid-network experiment artifacts, are **not part of this release**. The recorded summary should be treated as a research-agent self-report until these are archived and rerun.
 
 ## References
 
@@ -382,7 +434,20 @@ The human project owner is identified by the GitHub account name **taituo**; no 
 6. Starace, G., et al. (2025). *PaperBench: Evaluating AI's Ability to Replicate AI Research.* ICML / PMLR 267. https://proceedings.mlr.press/v267/starace25a.html
 7. Zaremba, W., & Sutskever, I. (2014). *Learning to Execute.* arXiv:1410.4615. https://arxiv.org/abs/1410.4615
 8. Karpathy, A. (2026). *autoresearch.* Open-source experiment framework. https://github.com/karpathy/autoresearch
+9. Trask, A., Hill, F., Reed, S., Rae, J., Dyer, C., & Blunsom, P. (2018). *Neural Arithmetic Logic Units.* NeurIPS 31. https://papers.neurips.cc/paper_files/paper/2018/hash/0e64a7b00c83e3d22ce6b3acf2c582b6-Abstract.html
+10. Gaunt, A. L., Brockschmidt, M., Singh, R., Kushman, N., Kohli, P., Taylor, J., & Tarlow, D. (2016). *TerpreT: A Probabilistic Programming Language for Program Induction.* NeurIPS. https://openreview.net/forum?id=Sk6W5JJke
+11. Bošnjak, M., Rocktäschel, T., Naradowsky, J., & Riedel, S. (2017). *Programming with a Differentiable Forth Interpreter.* ICML 34. https://arxiv.org/abs/1605.06640
+12. Bengio, Y., Léonard, N., & Courville, A. (2013). *Estimating or Propagating Gradients Through Stochastic Neurons for Conditional Computation.* arXiv:1308.3432. https://arxiv.org/abs/1308.3432
+13. Schick, T., et al. (2023). *Toolformer: Language Models Can Teach Themselves to Use Tools.* NeurIPS 36. https://papers.neurips.cc/paper_files/paper/2023/hash/d842425e4bf79ba039352da0f658a906-Abstract-Conference.html
 
 ### Suggested citation
 
 taituo (2026). **Reverse Eureka Reconstruction (RER): Can Reconstructed Discovery Paths Seed Autonomous Research?** Unreviewed working paper and single-case experimental report. https://github.com/taituo/rer/blob/main/paper.md
+
+
+## Inspired by
+
+- **[Cheng Lou — Handwired](https://github.com/chenglou/handwired):** the *technical starting point B* for the first RER question path: representing ordinary computation with explicitly constructed neural weights. Handwired is the reference idea, **not** the codebase whose numerical behavior was experimentally characterized here.
+- **[Felix Rieseberg — *How to be more ambitious: A tutorial for humans with models* (13 October 2026)](https://felixrieseberg.com/how-to-be-more-ambitious-a-tutorial-for-humans-with-models/):** a broader inspiration for raising the abstraction level of AI work, getting closer to primary materials, crossing disciplinary boundaries, and testing outcomes with independent evidence. RER is a proposed **specific scientific workflow**, not an experimental result established by that essay.
+
+These credits acknowledge conceptual inspiration; they do not imply endorsement, co-authorship, or that either source validates the RER hypothesis.
